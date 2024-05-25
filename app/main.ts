@@ -21,12 +21,15 @@ export const connectionHandler = (directory: string) => (conn: net.Socket) => {
             }
         }
 
-        if (respBody.length > 0){
+        if (respBody.length > 0) {
             resp.headers.push(`Content-Length: ${respBody.length}`);
         }
 
         conn.write(`HTTP/1.1 ${resp.code} ${resp.msg}\r\n`);
-        conn.write(resp.headers.join('\r\n') + '\r\n\r\n');
+        for (const header of resp.headers) {
+            conn.write(`${header}\r\n`);
+        }
+        conn.write('\r\n');
         conn.write(respBody);
         conn.end();
     });
@@ -35,9 +38,6 @@ export const connectionHandler = (directory: string) => (conn: net.Socket) => {
 const args = process.argv.slice(2);
 const parsedArgs = processArgs(args);
 const server = net.createServer(connectionHandler(parsedArgs.get('directory') ?? ""));
-
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-console.log("Logs from your program will appear here!");
 
 // Uncomment this to pass the first stage
 server.listen(4221, 'localhost', () => {

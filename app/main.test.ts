@@ -6,13 +6,13 @@ import { connectionHandler } from './main';
 
 
 const addr = 'localhost';
-const port = 3000;
 const baseDirectory = path.dirname(__dirname);
 
 describe("main", () => {
     describe("/", () => {
         test("should return 200 Ok", (done) => {
             testServerFn(
+                3000,
                 done,
                 "GET / HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
                 "HTTP/1.1 200 OK\r\n\r\n",
@@ -23,6 +23,7 @@ describe("main", () => {
     describe("/echo", () => {
         test("should return 200 Ok with body", (done) => {
             testServerFn(
+                3001,
                 done,
                 "GET /echo/test HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
                 "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\ntest",
@@ -30,14 +31,16 @@ describe("main", () => {
         });
         test("should return header if content encoding is present", (done) => {
             testServerFn(
+                3002,
                 done,
                 "GET /echo/foo HTTP/1.1\r\nHost: localhost:3000\r\nAccept-Encoding: gzip\r\n\r\n",
-                "HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: 46\r\n\r\n1f8b08008c643b6602ff4bcbcf07002165738c03000000",
+                "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: 23\r\n\r\n\u001f�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0003K��\u0007\u0000!es�\u0003\u0000\u0000\u0000",
             )
         });
 
         test("should not return header if content encoding is invalid", (done) => {
             testServerFn(
+                3003,
                 done,
                 "GET /echo/test HTTP/1.1\r\nHost: localhost:3000\r\nAccept-Encoding: random\r\n\r\n",
                 "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\ntest",
@@ -46,9 +49,10 @@ describe("main", () => {
 
         test("should only use supported headers", (done) => {
             testServerFn(
+                3004,
                 done,
                 "GET /echo/foo HTTP/1.1\r\nHost: localhost:3000\r\nAccept-Encoding: random, random1, no_supported, gzip\r\n\r\n",
-                "HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: 46\r\n\r\n1f8b08008c643b6602ff4bcbcf07002165738c03000000",
+                "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Encoding: gzip\r\nContent-Length: 23\r\n\r\n\u001f�\b\u0000\u0000\u0000\u0000\u0000\u0000\u0003K��\u0007\u0000!es�\u0003\u0000\u0000\u0000",
             )
         })
     });
@@ -56,6 +60,7 @@ describe("main", () => {
     describe("/not_found", () => {
         test("should return 404", (done) => {
             testServerFn(
+                3005,
                 done,
                 "GET /not_found HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
                 "HTTP/1.1 404 Not Found\r\n\r\n",
@@ -66,6 +71,7 @@ describe("main", () => {
     describe("/user-agent", () => {
         test("should return 200 Ok with body", (done) => {
             testServerFn(
+                3006,
                 done,
                 "GET /user-agent HTTP/1.1\r\nHost: localhost:3000\r\nUser-Agent: test\r\n\r\n",
                 "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\ntest",
@@ -77,6 +83,7 @@ describe("main", () => {
         describe("GET", () => {
             test("should return gitignore contents", (done) => {
                 testServerFn(
+                    3007,
                     done,
                     "GET /files/.gitignore HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
                     "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: 15\r\n\r\nnode_modules/\r\n",
@@ -86,6 +93,7 @@ describe("main", () => {
 
             test("should return 404", (done) => {
                 testServerFn(
+                    3008,
                     done,
                     "GET /files/not_found HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
                     "HTTP/1.1 404 Not Found\r\n\r\n",
@@ -95,8 +103,9 @@ describe("main", () => {
         });
 
         describe("POST", () => {
-            test.skip("should return 201 Created", (done) => {
+            test("should return 201 Created", (done) => {
                 testServerFn(
+                    3009,
                     done,
                     "POST /files/test.txt HTTP/1.1\r\nHost: localhost:3000\r\n\r\nHello, World!\r\n",
                     "HTTP/1.1 201 Created\r\n\r\n",
@@ -116,7 +125,7 @@ describe("main", () => {
 });
 
 
-const testServerFn = (done: any, req: string, expectedResp: string, directory: string = "", callback: Function = () => { }) => {
+const testServerFn = (port: number, done: any, req: string, expectedResp: string, directory: string = "", callback: Function = () => { }) => {
     const server = net.createServer(connectionHandler(directory));
     server.listen(port, addr, () => {
         const client = net.connect({ port });
