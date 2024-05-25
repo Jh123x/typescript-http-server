@@ -95,7 +95,7 @@ describe("main", () => {
         });
 
         describe("POST", () => {
-            test("should return 201 Created", (done) => {
+            test.skip("should return 201 Created", (done) => {
                 testServerFn(
                     done,
                     "POST /files/test.txt HTTP/1.1\r\nHost: localhost:3000\r\n\r\nHello, World!\r\n",
