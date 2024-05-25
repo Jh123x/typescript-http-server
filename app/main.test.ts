@@ -86,7 +86,7 @@ describe("main", () => {
                     3007,
                     done,
                     "GET /files/.gitignore HTTP/1.1\r\nHost: localhost:3000\r\n\r\n",
-                    "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: 15\r\n\r\nnode_modules/\r\n",
+                    "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: 15\r\n\r\nnode_modules/\n",
                     baseDirectory,
                 )
             });
