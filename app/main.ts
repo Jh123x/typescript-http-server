@@ -21,7 +21,9 @@ export const connectionHandler = (directory: string) => (conn: net.Socket) => {
             }
         }
 
-        resp.headers.push(`Content-Length: ${respBody.length}`);
+        if (respBody.length > 0){
+            resp.headers.push(`Content-Length: ${respBody.length}`);
+        }
 
         conn.write(`HTTP/1.1 ${resp.code} ${resp.msg}\r\n`);
         conn.write(resp.headers.join('\r\n') + '\r\n\r\n');
